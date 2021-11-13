@@ -112,7 +112,7 @@
 \DeclareRobustCommand\cs[1]{\texttt{\char`\\#1}}
 
 \title{Neutron Calibration on DUNE}
-\author{Nicholas Carrara$^1$\thanks{ncarrara.physics@gmail.com}, Yashwanth Bezawada$^1$\thanks{ysbezawada@ucdavis.edu}, Junying Huang$^1$\thanks{jyghuang@ucdavis.edu}\\Jingbo Wang$^2$\thanks{jingbo.wang@sdsmt.edu}, Walker Johnson$^2$\thanks{walker.johnson@mines.sdsmt.edu}\\
+\author{Nicholas Carrara$^1$\thanks{ncarrara.physics@gmail.com}, Gian Caceres$^1$\thanks{gcaceres@ucdavis.edu}, Yashwanth Bezawada$^1$\thanks{ysbezawada@ucdavis.edu}, Junying Huang$^1$\thanks{jyghuang@ucdavis.edu}\\Jingbo Wang$^2$\thanks{jingbo.wang@sdsmt.edu}, Walker Johnson$^2$\thanks{walker.johnson@mines.sdsmt.edu}\\
 Robert Svoboda$^1$\thanks{rsvoboda@ucdavis.edu}, Michael Mulhearn$^1$\thanks{mjmulhearn@ucdavis.edu}\\
 ${}^1$University of California at Davis, Physics Department, Davis, CA 95616\\
 ${}^2$South Dakota School of Mines \& Technology, Physics Department, Rapid City, SD 57701\\
@@ -1189,7 +1189,63 @@ There are currently three available models for use in LArSoft for ionization and
 
 
 \section{Benchmarks for Neutron Calibration in Pure Argon}
-In order to determine systematics from our detector geometry and the simulation, we will run a simulation in a pure Argon (\hyperref[naturalargon]{natural argon}) sample in which the geometry is that of an effectively infinite sphere.  This allows us to gather statistics about neutron lifetime and neutron capture in an ideal environment, where no interactions with impurities or detector components occur.  
+In order to determine systematics from our detector geometry and the simulation, we will run a simulation in a pure Argon (\hyperref[naturalargon]{natural argon}) sample in which the geometry is that of an effectively infinite sphere.  This allows us to gather statistics about neutron lifetime and neutron capture in an ideal environment, where no interactions with impurities or detector components occur. 
+
+\marginlabel{Installation:} There are several scripts included with the git respository that will automate the installation process.  Once downloaded, go to the scripts folder
+\begin{code}{shell}
+git clone https://github.com/Neutron-Calibration-in-DUNE/NeutronArgonBenchmarks
+cd NeutronArgonBenchmarks/scripts
+\end{code}
+then run the Geant4 preprocessing step, which will install required packages such as *cmake, gcc, g++, expat, qt5, xmu and motif*:
+\begin{code}{shell}
+source prepare_geant4_installation.sh
+\end{code}
+it will also download a version of geant4 and install it in the directory \textit{/home/\$USER/physics/geant4/}.  The next step is to actually install geant4, which can be done with:
+\begin{code}{shell}
+source install\_geant4.sh
+\end{code}
+Finally, to compile the argon sphere code you can run the following script:
+\begin{code}{shell}
+source install_argon_sphere.sh
+\end{code}
+\marginlabel{Manual Installation} If for some reason the installation scripts do not work, or you wish to install Geant4 manually, the following list of steps should work on Ubuntu 20.XX.  First you will need a few packages, such as QT in order to use the visualization tools,
+\begin{code}{shell}
+  sudo apt-get install cmake gcc g++ libexpat1-dev qt5-default libxmu-dev libmotif-dev
+\end{code}
+Now choose a place in which you want to download the Geant4 code.  The following should work:
+\begin{code}{shell}
+  wget "http://cern.ch/geant4-data/releases/geat4.10.07.p02.tar.gz"
+  tar xvfz geant4.10.07.p02.tar.gz
+  rm geant4.10.07.p02.tar.gz
+\end{code}
+The easiest way to install geant4 once you have it downloaded, is to use ccmake, which you may have to download using
+\begin{code}{shell}
+  sudo apt-get install cmake-curses-gui
+\end{code}
+Next, you should create a build directory inside of the folder where the source code is for building the code:
+\begin{code}{shell}
+  cd geant4.10.07.p02
+  mkdir build && cd build
+\end{code}
+Then just run ccmake, which will bring up a cmake GUI
+\begin{code}{shell}
+  ccmake ..
+\end{code}
+From here, there are several things that you need to enable, such as \textbf{GEANT4\_INTALL\_DATA=ON}, \textbf{GEANT4\_USE\_QT=ON} and\\
+\textbf{GEANT4\_USE\_SYSTEM\_EXPAT=ON}.  You also need to specify the installation directory, which in the scripts is set to\\ \textit{/home/\$USER/physics/geant4.10.07.p02-install/}.  If you are not using ccmake, but instead just running cmake from the build directory, you can do this with the following:
+\begin{code}{shell}
+  cmake -DCMAKE_INSTALL_PREFIX=<install_dir> -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_QT=ON -DGEANT4_USE_SYSTEM_EXPAT=ON ..
+\end{code}
+If cmake is successful, you can then build the project by issuing
+\begin{code}{shell}
+  make -j N
+  make install
+\end{code}
+where \textit{N} is the number of cores you want to use to build.  Once installed, you will need to run a setup script to export the right environment variables.  This can be found in the folder \textit{<install\_dir>/share/Geant4*/geant4make/}:
+\begin{code}{shell}
+  source <install_dir>/share/Geant4*/geant4make/geant4make.sh
+\end{code}
+  
 
 
 \section{Neutron Calibration in protoDUNE}
